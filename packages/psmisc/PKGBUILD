@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=psmisc
+pkgver=23.1
+pkgrel=1
+pkgdesc="Miscellaneous procfs tools"
+arch=('x86_64')
+url="http://psmisc.sourceforge.net/index.html"
+groups=('base')
+license=('GPL')
+depends=('ncurses')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('bbba1f701c02fb50d59540d1ff90d8d1')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+
+    install -vdm755 ${pkgdir}/bin
+    mv -v ${pkgdir}/usr/bin/fuser   ${pkgdir}/bin
+    mv -v ${pkgdir}/usr/bin/killall ${pkgdir}/bin
+}

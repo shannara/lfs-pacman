@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=nano
+pkgver=2.9.3
+pkgrel=1
+pkgdesc="Pico editor clone with enhancements"
+arch=('x86_64')
+license=('GPL')
+url="http://www.nano-editor.org"
+groups=('base')
+depends=('ncurses' 'file' 'bash')
+backup=('etc/nanorc')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=()
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr \
+    --sysconfdir=/etc \
+    --enable-color \
+    --enable-nanorc \
+    --enable-multibuffer \
+    --disable-wrapping-as-root
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR=${pkgdir} install
+  install -DTm644 ${srcdir}/${pkgname}-${pkgver}/doc/sample.nanorc ${pkgdir}/etc/nanorc
+}

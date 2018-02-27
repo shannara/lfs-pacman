@@ -1,0 +1,60 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=python
+pkgver=3.6.4
+pkgrel=2
+_pybasever=3.6
+pkgdesc="Next generation of the python high-level scripting language"
+arch=('x86_64')
+license=('custom')
+url="http://www.python.org/"
+depends=('expat' 'bzip2' 'gdbm' 'openssl' 'libffi' 'zlib')
+source=("Python-${pkgver}.tar.xz")
+md5sums=('1325134dd525b4a2c3272a1a0214dd54')
+
+prepare() {
+  cd Python-${pkgver}
+
+  # FS#23997
+  sed -i -e "s|^#.* /usr/local/bin/python|#!/usr/bin/python|" Lib/cgi.py
+
+  # Ensure that we are using the system copy of various libraries (expat, zlib, libffi, and libmpdec),
+  # rather than copies shipped in the tarball
+  rm -r Modules/expat
+  rm -r Modules/zlib
+  rm -r Modules/_ctypes/{darwin,libffi}*
+  rm -r Modules/_decimal/libmpdec
+}
+
+build() {
+  cd Python-${pkgver}
+
+  ./configure --prefix=/usr       \
+              --enable-shared     \
+              --with-system-expat \
+              --with-system-ffi   \
+              --with-system-libmpdec \
+              --with-ensurepip=yes
+}
+
+package() {
+  cd Python-${pkgver}
+
+  # Hack to avoid building again
+  sed -i 's/^all:.*$/all: build_all/' Makefile
+
+  make DESTDIR="${pkgdir}" EXTRA_CFLAGS="$CFLAGS" install
+
+  # Why are these not done by default...
+  ln -s python3               "${pkgdir}"/usr/bin/python
+  ln -s python3-config        "${pkgdir}"/usr/bin/python-config
+  ln -s idle3                 "${pkgdir}"/usr/bin/idle
+  ln -s pydoc3                "${pkgdir}"/usr/bin/pydoc
+  ln -s python${_pybasever}.1 "${pkgdir}"/usr/share/man/man1/python.1
+
+  # some useful "stuff" FS#46146
+  install -dm755 "${pkgdir}"/usr/lib/python${_pybasever}/Tools/{i18n,scripts}
+  install -m755 Tools/i18n/{msgfmt,pygettext}.py "${pkgdir}"/usr/lib/python${_pybasever}/Tools/i18n/
+  install -m755 Tools/scripts/{README,*py} "${pkgdir}"/usr/lib/python${_pybasever}/Tools/scripts/
+}

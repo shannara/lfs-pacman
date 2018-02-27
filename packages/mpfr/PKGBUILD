@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=mpfr
+pkgver=4.0.1
+pkgrel=1
+pkgdesc="Multiple-precision floating-point library"
+arch=('x86_64')
+url="http://www.mpfr.org/"
+license=('LGPL')
+depends=('gmp>=6.1')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('b8dd19bd9bb1ec8831a6a582a7308073')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr        \
+		--disable-static     \
+		--enable-thread-safe \
+		--docdir=/usr/share/doc/mpfr-4.0.1
+    make
+    make html
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+    make DESTDIR=${pkgdir} install-html
+}

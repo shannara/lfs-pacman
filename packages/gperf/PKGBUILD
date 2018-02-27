@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Stanisla Leduc <stanislas.leduc@balinor.net>
+
+pkgname=gperf
+pkgver=3.1
+pkgrel=1
+pkgdesc="Perfect hash function generator"
+arch=('x86_64')
+url="http://www.gnu.org/software/gperf/"
+license=('GPL3')
+depends=('gcc-libs' 'texinfo')
+source=(${pkgname}-${pkgver}.tar.gz)
+md5sums=('9e251c0a618ad0824b51117d5d9db87e')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --docdir=/usr/share/doc/gperf-${pkgver}
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make -j1 check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}

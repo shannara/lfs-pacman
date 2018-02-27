@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgbase=elfutils
+pkgname=(elfutils libelf)
+pkgver=0.170
+pkgrel=1
+pkgdesc="Utilities to handle ELF object files and DWARF debugging information"
+arch=('x86_64')
+url="https://sourceware.org/elfutils/"
+groups=('base' 'base-devel')
+license=('LGPL3' 'GPL' 'GPL3')
+depends=('gcc-libs' 'zlib' 'bzip2' 'xz')
+source=(${pkgbase}-${pkgver}.tar.bz2)
+md5sums=('03599aee98c9b726c7a732a2dd0245d5')
+
+build() {
+    cd "${pkgbase}-${pkgver}"
+
+    ./configure --prefix=/usr --program-prefix="eu-"
+
+    make
+}
+
+check() {
+    cd "${pkgbase}-${pkgver}"
+
+    make check 2>&1 | tee ${pkgbase}-${pkgver}-check-log
+}
+
+package_elfutils() {
+  cd ${pkgbase}-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+
+  mkdir "${srcdir}"/libelf
+  mv "${pkgdir}"/usr/{lib,include} "${srcdir}/libelf"
+}
+
+package_libelf() {
+  pkgdesc="Libraries to handle ELF object files and DWARF debugging information"
+  mv libelf "${pkgdir}/usr"
+}

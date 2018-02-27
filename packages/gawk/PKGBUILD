@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=gawk
+pkgver=4.2.0
+pkgrel=1
+pkgdesc="GNU version of awk"
+arch=('x86_64')
+url="http://www.gnu.org/software/gawk/"
+groups=('base' 'base-devel')
+license=('GPL')
+depends=('bash' 'glibc' 'mpfr')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=()
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+
+    install -vdm755 ${pkgdir}/usr/share/doc/gawk-${pkgver}
+    install -vm644 doc/{awkforai.txt,*.{eps,pdf,jpg}} ${pkgdir}/usr/share/doc/gawk-${pkgver}
+
+}

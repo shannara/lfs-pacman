@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=check
+pkgver=0.12.0
+pkgrel=1
+pkgdesc="A unit testing framework for C"
+url="https://libcheck.github.io/check/"
+arch=(x86_64)
+license=(LGPL)
+depends=(gawk)
+source=(${pkgname}-${pkgver}.tar.gz)
+md5sums=('31b17c6075820a434119592941186f70')
+
+prepare() {
+  cd $pkgname-$pkgver
+  autoreconf -fvi
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-static
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+  # Extremely long
+  #make -k check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  # get rid of the package's info directory
+  rm "$pkgdir/usr/share/info/dir"
+
+  # svn log file is too big
+  rm "$pkgdir"/usr/share/doc/check/*ChangeLog*
+}

@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=libffi
+pkgver=3.2.1
+pkgrel=1
+pkgdesc="Portable foreign function interface library"
+arch=('x86_64')
+url="https://sourceware.org/libffi/"
+license=('MIT')
+depends=('glibc')
+checkdepends=('dejagnu')
+source=(${pkgname}-${pkgver}.tar.gz)
+md5sums=('83b89587607e3eb65c70d361f13bab43')
+
+prepare() {
+    cd "${pkgname}-${pkgver}"
+
+    sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
+        -i include/Makefile.in
+
+    sed -e '/^includedir/ s/=.*$/=@includedir@/' \
+        -e 's/^Cflags: -I${includedir}/Cflags:/' \
+        -i libffi.pc.in
+}
+
+build() {
+    cd "${pkgname}-${pkgver}"
+
+    ./configure --prefix=/usr --disable-static
+
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+  cd ${pkgbase}-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+}

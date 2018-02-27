@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=groff
+pkgver=1.22.3
+pkgrel=1
+pkgdesc="GNU troff text-formatting system"
+arch=('x86_64')
+url="http://www.gnu.org/software/groff/groff.html"
+groups=('base-devel')
+depends=('perl' 'gcc-libs')
+options=('!docs' '!emptydirs' '!makeflags')
+license=('GPL')
+source=(${pkgname}-${pkgver}.tar.gz)
+md5sums=()
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    PAGE=A4 ./configure --prefix=/usr
+    make -j1
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}

@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=file
+pkgver=5.32
+pkgrel=1
+pkgdesc="File type identification utility"
+arch=('x86_64')
+url="https://www.darwinsys.com/file/"
+groups=('base' 'base-devel')
+license=('custom')
+depends=('glibc' 'zlib')
+source=(${pkgname}-${pkgver}.tar.gz)
+md5sums=('4f2503752ff041895090ed6435610435')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}

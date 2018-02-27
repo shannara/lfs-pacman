@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=perl-xml-parser
+archive_base=XML-Parser
+pkgver=2.44
+pkgrel=1
+pkgdesc="Expat-based XML parser module for perl"
+arch=('x86_64')
+url="http://search.cpan.org/dist/XML-Parser/"
+license=('GPL' 'PerlArtistic')
+depends=('perl' 'expat')
+options=('!emptydirs')
+source=(${archive_base}-${pkgver}.tar.gz)
+md5sums=('af4813fe3952362451201ced6fbce379')
+
+build() {
+    cd "${archive_base}-${pkgver}"
+    perl Makefile.PL
+    make
+}
+
+check() {
+    cd "${archive_base}-${pkgver}"
+    make test 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${archive_base}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}

@@ -1,0 +1,4 @@
+NAME="LFS Linux"
+PRETTY_NAME="LFS Linux"
+ID=lfs
+ID_LIKE=lfslinux

@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=kmod
+pkgver=25
+pkgrel=1
+pkgdesc="Linux kernel module management tools and library"
+arch=('x86_64')
+url="http://git.kernel.org/?p=utils/kernel/kmod/kmod.git;a=summary"
+license=('GPL2')
+depends=('glibc' 'zlib' 'xz')
+checkdepends=('linux-headers' 'libelf')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('34f325cab568f842fdde4f8b2182f220')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr          \
+		--bindir=/bin          \
+		--sysconfdir=/etc      \
+		--with-rootlibdir=/lib \
+		--with-xz              \
+		--with-zlib
+    make
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+
+    install -vdm755 ${pkgdir}/sbin
+    install -vdm755 ${pkgdir}/bin
+    for target in depmod insmod lsmod modinfo modprobe rmmod; do
+	ln -sfv ../bin/kmod ${pkgdir}/sbin/$target
+    done
+
+    ln -sfv kmod ${pkgdir}/bin/lsmod
+}

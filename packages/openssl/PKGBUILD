@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=openssl
+_ver=1.1.0g
+# use a pacman compatible version scheme
+pkgver=${_ver/[a-z]/.${_ver//[0-9.]/}}
+pkgrel=1
+pkgdesc='The Open Source toolkit for Secure Sockets Layer and Transport Layer Security'
+arch=('x86_64')
+url='https://www.openssl.org'
+license=('custom:BSD')
+depends=('perl')
+backup=('etc/ssl/openssl.cnf')
+source=(${pkgname}-${_ver}.tar.gz
+	'ca-dir.patch')
+md5sums=('ba5f1b8b835b88cadbce9b35ed9531a6'
+         '100b6df16f2f3475dd7d968214cd5293')
+
+prepare() {
+	cd "$srcdir/$pkgname-$_ver"
+
+	# set ca dir to /etc/ssl by default
+	patch -p0 -i "$srcdir/ca-dir.patch"
+}
+
+build() {
+	cd "$srcdir/$pkgname-$_ver"
+
+	openssltarget='linux-x86_64'
+	optflags='enable-ec_nistp_64_gcc_128'
+
+	./Configure --prefix=/usr --openssldir=/etc/ssl --libdir=lib \
+		shared no-ssl3-method ${optflags} \
+		"${openssltarget}" \
+		"-Wa,--noexecstack ${CPPFLAGS} ${CFLAGS} ${LDFLAGS}"
+
+	make depend
+	make
+}
+
+check() {
+	cd "$srcdir/$pkgname-$_ver"
+	# the test fails due to missing write permissions in /etc/ssl
+	# revert this patch for make test
+	patch -p0 -R -i "$srcdir/ca-dir.patch"
+	make test
+	patch -p0 -i "$srcdir/ca-dir.patch"
+}
+
+package() {
+	cd "$srcdir/$pkgname-$_ver"
+	make DESTDIR=$pkgdir MANDIR=/usr/share/man MANSUFFIX=ssl install_sw install_ssldirs install_man_docs
+}

@@ -1,0 +1,62 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgbase=util-linux
+pkgname=(util-linux libutil-linux)
+pkgver=2.31.1
+pkgrel=1
+pkgdesc="Miscellaneous system utilities for Linux"
+arch=('x86_64')
+options=('strip' 'debug')
+url="https://www.kernel.org/pub/linux/utils/util-linux/"
+license=('GPL2')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('7733b583dcb51518944d42aa62ef19ea')
+
+prepare() {
+    cd "${pkgname}-${pkgver}"
+}
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+		--docdir=/usr/share/doc/util-linux-${pkgver} \
+		--disable-chfn-chsh  \
+		--disable-login      \
+		--disable-nologin    \
+		--disable-su         \
+		--disable-setpriv    \
+		--disable-runuser    \
+		--disable-pylibmount \
+		--disable-static     \
+		--without-python     \
+		--without-systemd    \
+		--without-systemdsystemunitdir
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make -k check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package_util-linux() {
+    depends=('shadow' 'coreutils' 'libutil-linux')
+    groups=('base' 'base-devel')
+
+    cd "$pkgbase-$pkgver"
+
+    make DESTDIR="$pkgdir" install
+
+    ### runtime libs are shipped as part of libutil-linux
+    rm "$pkgdir"/usr/lib/lib*.so*
+
+    install -vdm755 ${pkgdir}/var/lib/hwclock
+}
+
+package_libutil-linux() {
+  pkgdesc="util-linux runtime libraries"
+  provides=('libblkid.so' 'libfdisk.so' 'libmount.so' 'libsmartcols.so' 'libuuid.so')
+
+  make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-usrlib_execLTLIBRARIES
+}

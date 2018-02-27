@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+# toolchain build order: linux-api-headers->glibc->binutils->gcc->binutils->glibc
+
+pkgname=linux-api-headers
+pkgver=4.14.15
+pkgrel=1
+pkgdesc="Kernel headers sanitized for use in userspace"
+arch=('x86_64')
+url="https://www.kernel.org"
+license=('GPL2')
+source=(linux-${pkgver}.tar.xz)
+md5sums=('e1051f6b15d6399a5de2441dd4e15537')
+
+build() {
+  cd linux-${pkgver}
+
+  make mrproper
+  make headers_check
+}
+
+package() {
+  cd linux-${pkgver}
+  make INSTALL_HDR_PATH="$pkgdir/usr" headers_install
+
+  # clean-up unnecessary files generated during install
+  find "$pkgdir" \( -name .install -o -name ..install.cmd \) -delete
+}

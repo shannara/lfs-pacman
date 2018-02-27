@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=expect
+pkgver=5.45.4
+pkgrel=1
+pkgdesc='A tool for automating interactive applications'
+arch=(x86_64)
+url='http://www.nist.gov/el/msid/expect.cfm'
+license=(custom)
+depends=(tcl)
+source=(expect${pkgver}.tar.gz)
+md5sums=('00fce8de158422f5ccd2666512329bd2')
+
+build() {
+  cd expect${pkgver}
+  ./configure --prefix=/usr --mandir=/usr/share/man
+  make
+}
+
+check() {
+  cd expect${pkgver}
+  make test
+}
+
+package() {
+  cd expect${pkgver}
+  make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,96 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=filesystem
+pkgver=2018.1
+pkgrel=1
+pkgdesc='Base LFS Linux files'
+arch=('x86_64')
+license=('GPL')
+url='http://www.linuxfromscratch.org'
+groups=('base')
+depends=('iana-etc')
+backup=('etc/fstab' 'etc/group' 'etc/gshadow' 'etc/host.conf' 'etc/hostname'
+        'etc/hosts' 'etc/motd' 'etc/rpc' 'etc/issue' 'etc/init.d/rc.functions' 
+        'etc/ld.so.conf' 'etc/motd' 'etc/networks' 'etc/nsswitch.conf' 'etc/passwd'
+        'etc/profile' 'etc/resolv.conf' 'etc/securetty' 'etc/shadow' 'etc/resolv.conf'
+        'etc/shells')
+source=('fstab' 'group' 'gshadow' 'host.conf' 'hosts' 'rpc' 'hostname' 'issue'
+        'ld.so.conf' 'motd' 'networks' 'rc.functions' 'nsswitch.conf' 
+        'os-release' 'passwd' 'profile' 'resolv.conf' 'securetty' 'shadow' 'shells')
+md5sums=('59bf2cf63822f8d2d914674a5c160da2'
+         '80172d2a8084eecc65e9dbe24d9afe47'
+         '60f9551edd27c9f65c9df951a28ff04a'
+         '5476d5aa044e7fd0c128a15570992227'
+         '1a7d6a0a8d1a8703fed7aed501034095'
+         '9a193ca4152451fd351ef647e73b96d7'
+         'b41c530820bfd1006031d320b002b91d'
+         'c2ed65a977e2ad7b31e16c2d76ca71b8'
+         '5deb9f890a4d08a245e9752ede77271e'
+         'd41d8cd98f00b204e9800998ecf8427e'
+         '7442e429801b66c83dff4153ce2b3c16'
+         '30d1e4bd5b27ca8afb402376bf58784a'
+         'ed71e4bb86cfc0dc7fe24d00e6540630'
+         '4e13f77d917d7a0a5748d4b31ff0be37'
+         '930991558ca0d49b4f098ff9f81033ca'
+         '5e31a06a4f72f56bad850afff4a67294'
+         '0ee015fad07732676d9488ae498eed41'
+         '4216aff68c01b870f673db7fbfbeb4cb'
+         '4bd7b7293539d1209f7d40d338d4f960'
+         'a78cd8d7f8240a8448edee82f503c34e')
+
+package() {
+  cd "$pkgdir"
+
+  # setup root filesystem
+  for d in boot dev etc home mnt usr var opt run etc/init.d; do
+    install -d -m755 $d
+  done
+  install -d -m555 proc
+  install -d -m555 sys
+  install -d -m0750 root
+  install -d -m1777 tmp
+
+  # setup /etc
+  for f in fstab group host.conf hostname hosts issue ld.so.conf \
+  networks nsswitch.conf motd passwd profile resolv.conf rpc securetty shells; do
+    install -m644 "$srcdir"/$f etc/  
+  done
+  install -m644 "$srcdir"/rc.functions etc/init.d
+
+  ln -s ../proc/self/mounts etc/mtab
+  for f in gshadow shadow; do
+    install -m600 "$srcdir"/$f etc/
+  done
+  install -Dm644 "$srcdir"/os-release usr/lib/os-release
+
+  # setup /var
+  for d in cache local opt log empty; do
+    install -d -m755 var/$d
+  done
+  install -d -m1777 var/{tmp,spool/mail}
+
+  # setup /usr hierarchy
+  for d in bin sbin inclure lib share/misc src; do
+    install -d -m755 usr/$d
+  done
+  for d in {1..8}; do
+    install -d -m755 usr/share/man/man$d
+  done
+
+  # setup / hierarchy
+  for d in bin sbin lib; do
+    install -d -m 755 $d
+  done
+
+  # add lib symlinks
+  [[ $CARCH = 'x86_64' ]] && {
+    ln -s lib lib64
+    ln -s usr/lib usr/lib64
+  }
+
+  # setup /usr/local hierarchy
+  for d in bin etc include lib man sbin share src; do
+    install -d -m755 usr/local/$d
+  done
+}

@@ -1,0 +1,8 @@
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system>    <dir>    <type>    <options>    <dump>    <pass>
+proc            /proc        proc    defaults          0       0
+sysfs           /sys         sysfs   defaults          0       0
+devpts          /dev/pts     devpts  defaults          0       0
+tmpfs           /dev/shm     tmpfs   defaults          0       0

@@ -1,0 +1,66 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=bash
+pkgver=4.4.18
+pkgrel=1
+pkgdesc="The GNU Bourne Again shell"
+arch=('x86_64')
+url="http://www.gnu.org/software/bash/bash.html"
+groups=('base')
+backup=(etc/bash.bash{rc,_logout} etc/skel/.bash{rc,_profile,_logout})
+license=('GPL')
+depends=('readline>=7.0' glibc ncurses)
+source=(${pkgname}-${pkgver}.tar.gz
+        dot.bashrc
+        dot.bash_profile
+        dot.bash_logout
+        system.bashrc
+        system.bash_logout)
+md5sums=('518e2c187cc11a17040f0915dddce54e'
+         '027d6bd8f5f6a06b75bb7698cb478089'
+         '37bd945872e30da7035f4ccaf3d53382'
+         '42f4400ed2314bd7519c020d0187edc5'
+         'd8f3f334e72c0e30032eae1a1229aef1'
+         'bd81458db50211f79a1f0ccbeb67d5fa')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+
+    _bashconfig=(-DSYS_BASHRC=\'\"/etc/bash.bashrc\"\'
+               -DSYS_BASH_LOGOUT=\'\"/etc/bash.bash_logout\"\'
+               -DNON_INTERACTIVE_LOGIN_SHELLS)
+    export CFLAGS="${CFLAGS} ${_bashconfig[@]}"
+
+    ./configure --prefix=/usr                          \
+		--docdir=/usr/share/doc/bash-${pkgver} \
+		--enable-readline		       \
+		--with-curses			       \
+		--without-bash-malloc                  \
+		--with-installed-readline
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+    install -vdm755 ${pkgdir}/bin
+    mv -vf ${pkgdir}/usr/bin/bash ${pkgdir}/bin
+
+    ln -s bash "$pkgdir/usr/bin/sh"
+
+    # system-wide configuration files
+    install -Dm644 $srcdir/system.bashrc "$pkgdir/etc/bash.bashrc"
+    install -Dm644 $srcdir/system.bash_logout "$pkgdir/etc/bash.bash_logout"
+
+    # user configuration file skeletons
+    install -dm755 "$pkgdir/etc/skel/"
+    install -m644 $srcdir/dot.bashrc "$pkgdir/etc/skel/.bashrc"
+    install -m644 $srcdir/dot.bash_profile "$pkgdir/etc/skel/.bash_profile"
+    install -m644 $srcdir/dot.bash_logout "$pkgdir/etc/skel/.bash_logout"
+}

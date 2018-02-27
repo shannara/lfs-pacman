@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=texinfo
+pkgver=6.5
+pkgrel=1
+pkgdesc="GNU documentation system for on-line information and printed output"
+arch=('x86_64')
+url="http://www.gnu.org/software/texinfo/"
+groups=('base' 'base-devel')
+depends=('bash' 'ncurses' 'gzip' 'perl')
+license=('GPL3')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=()
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --disable-static
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+    make DESTDIR=${pkgdir} TEXMF=/usr/share/texmf install-tex
+}

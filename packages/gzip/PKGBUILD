@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=gzip
+pkgver=1.9
+pkgrel=1
+pkgdesc="GNU compression utility"
+arch=('x86_64')
+url="http://www.gnu.org/software/gzip/"
+groups=('base' 'base-devel')
+depends=('glibc' 'bash' 'less')
+license=('GPL3')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=()
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+
+    install -vdm755 ${pkgdir}/bin
+    mv -v ${pkgdir}/usr/bin/gzip ${pkgdir}/bin
+}

@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=m4
+pkgver=1.4.18
+pkgrel=1
+pkgdesc="The GNU macro processor"
+arch=('x86_64')
+url="http://www.gnu.org/software/m4"
+groups=('base-devel')
+license=('GPL3')
+depends=('glibc' 'bash')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('730bb15d96fffe47e148d1e09235af82')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make prefix=${pkgdir} install
+}

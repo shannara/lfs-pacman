@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=bison
+pkgver=3.0.4
+pkgrel=1
+pkgdesc="The GNU general-purpose parser generator"
+arch=('x86_64')
+url="http://www.gnu.org/software/bison/bison.html"
+groups=('base-devel')
+license=('GPL3')
+depends=('glibc' 'm4' 'bash')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('c342201de104cc9ce0a21e0ad10d4021')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --docdir=/usr/share/doc/bison-${pkgver}
+    make
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}

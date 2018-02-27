@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=flex
+pkgver=2.6.4
+pkgrel=1
+pkgdesc="A tool for generating text-scanning programs"
+arch=('x86_64')
+url="https://github.com/westes/flex"
+groups=('base-devel')
+license=('custom')
+depends=('glibc' 'm4' 'bash')
+source=(${pkgname}-${pkgver}.tar.gz)
+md5sums=('2882e3179748cc9f9c23ec593d6adc8d')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+
+    HELP2MAN=/tools/bin/true \
+        ./configure --prefix=/usr --docdir=/usr/share/doc/flex-2.6.3
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+    ln -sv flex ${pkgdir}/usr/bin/lex
+}

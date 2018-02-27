@@ -1,0 +1,15 @@
+pkgname=man-pages
+pkgver=4.15
+pkgrel=1
+pkgdesc="Linux man pages"
+arch=('x86_64')
+url="http://man7.org/linux/man-pages/index.html"
+groups=('base')
+license=('GPL' 'custom')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('4298feb3d5feffad8ff46bb87b061a07')
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}

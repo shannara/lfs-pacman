@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Stanislas Leduc <stanislas.leduc@balinor.net>
+
+pkgname=grep
+pkgver=3.1
+pkgrel=1
+pkgdesc="A string search utility"
+arch=('x86_64')
+url="https://www.gnu.org/software/grep/"
+groups=('base' 'base-devel')
+license=('GPL3')
+depends=('glibc')
+makedepends=('texinfo')
+source=(${pkgname}-${pkgver}.tar.xz)
+md5sums=('feca7b3e7c7f4aab2b42ecbfc513b070')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --bindir=/bin
+    make
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make check 2>&1 | tee ${pkgname}-${pkgver}-check-log
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+}
